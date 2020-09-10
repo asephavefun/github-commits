@@ -118,6 +118,13 @@ class ViewController: UITableViewController {
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let vc = storyboard?.instantiateViewController(withIdentifier: "Detail") as? DetailViewController {
+            vc.detailItem = commits[indexPath.row]
+            navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
     func loadSavedData() {
         let request = Commit.createFetchRequest()
         let sort = NSSortDescriptor(key: "date", ascending: false)
@@ -151,6 +158,10 @@ class ViewController: UITableViewController {
         })
         ac.addAction(UIAlertAction(title: "Show all commits", style: .default) { [unowned self] _ in
             self.commitPredicate = nil
+            self.loadSavedData()
+        })
+        ac.addAction(UIAlertAction(title: "Show only Durian commits", style: .default) { [unowned self] _ in
+            self.commitPredicate = NSPredicate(format: "author.name == 'Joe Groff'")
             self.loadSavedData()
         })
 
