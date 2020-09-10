@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class ViewController: UITableViewController, NSFetchedResultsControllerDelegate {
+class ViewController: UITableViewController {
     
     var container: NSPersistentContainer!
     var commitPredicate: NSPredicate?
@@ -20,27 +20,56 @@ class ViewController: UITableViewController, NSFetchedResultsControllerDelegate 
         // Do any additional setup after loading the view.
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Filter", style: .plain, target: self, action: #selector(changeFilter))
         
-        container = NSPersistentContainer(name: "GC")
-        container.loadPersistentStores { (storeDescription, error) in
-            self.container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-            
-            if let error = error {
-                print("unresolved error \(error)")
-            }
-        }
-        
-        performSelector(inBackground: #selector(fetchCommits), with: nil)
-        loadSavedData()
+        coreDataInitialization()
     }
 
-    func saveContext() {
-        if container.viewContext.hasChanges {
-            do {
-                try container.viewContext.save()
-            } catch {
-                print("an error occured while saving \(error)")
+    @objc func changeFilter() {
+        let ac = UIAlertController(title: "Filter commits…", message: nil, preferredStyle: .actionSheet)
+
+        ac.addAction(UIAlertAction(title: "Show only fixes", style: .default) { [unowned self] _ in
+            self.commitPredicate = NSPredicate(format: "message CONTAINS[c] 'fix'")
+            self.loadSavedData()
+        })
+        ac.addAction(UIAlertAction(title: "Ignore Pull Requests", style: .default) { [unowned self] _ in
+            self.commitPredicate = NSPredicate(format: "NOT message BEGINSWITH 'Merge pull request'")
+            self.loadSavedData()
+        })
+        ac.addAction(UIAlertAction(title: "Show only recent", style: .default) { [unowned self] _ in
+            let twelveHoursAgo = Date().addingTimeInterval(-43200)
+            self.commitPredicate = NSPredicate(format: "date > %@", twelveHoursAgo as NSDate)
+            self.loadSavedData()
+        })
+        ac.addAction(UIAlertAction(title: "Show all commits", style: .default) { [unowned self] _ in
+            self.commitPredicate = nil
+            self.loadSavedData()
+        })
+        ac.addAction(UIAlertAction(title: "Show only Durian commits", style: .default) { [unowned self] _ in
+            self.commitPredicate = NSPredicate(format: "author.name == 'Joe Groff'")
+            self.loadSavedData()
+        })
+
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(ac, animated: true)
+    }
+}
+
+// MARK: - Data Source
+extension ViewController {
+    func getNewestCommitDate() -> String {
+        let formatter = ISO8601DateFormatter()
+
+        let newest = Commit.createFetchRequest()
+        let sort = NSSortDescriptor(key: "date", ascending: false)
+        newest.sortDescriptors = [sort]
+        newest.fetchLimit = 1
+
+        if let commits = try? container.viewContext.fetch(newest) {
+            if commits.count > 0 {
+                return formatter.string(from: commits[0].date.addingTimeInterval(1))
             }
         }
+
+        return formatter.string(from: Date(timeIntervalSince1970: 0))
     }
     
     @objc func fetchCommits() {
@@ -68,22 +97,22 @@ class ViewController: UITableViewController, NSFetchedResultsControllerDelegate 
             }
         }
     }
-    
-    func getNewestCommitDate() -> String {
-        let formatter = ISO8601DateFormatter()
+}
 
-        let newest = Commit.createFetchRequest()
-        let sort = NSSortDescriptor(key: "date", ascending: false)
-        newest.sortDescriptors = [sort]
-        newest.fetchLimit = 1
-
-        if let commits = try? container.viewContext.fetch(newest) {
-            if commits.count > 0 {
-                return formatter.string(from: commits[0].date.addingTimeInterval(1))
+// MARK: - Core Date
+extension ViewController: NSFetchedResultsControllerDelegate {
+    func coreDataInitialization() {
+        container = NSPersistentContainer(name: "GC")
+        container.loadPersistentStores { (storeDescription, error) in
+            self.container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            
+            if let error = error {
+                print("unresolved error \(error)")
             }
         }
-
-        return formatter.string(from: Date(timeIntervalSince1970: 0))
+        
+        performSelector(inBackground: #selector(fetchCommits), with: nil)
+        loadSavedData()
     }
     
     func configure(commit: Commit, usingJSON json: JSON) {
@@ -118,7 +147,54 @@ class ViewController: UITableViewController, NSFetchedResultsControllerDelegate 
         // use the author, either saved or new
         commit.author = commitAuthor
     }
+
+    func saveContext() {
+        if container.viewContext.hasChanges {
+            do {
+                try container.viewContext.save()
+            } catch {
+                print("an error occured while saving \(error)")
+            }
+        }
+    }
     
+    func loadSavedData() {
+        if fetchedResultsController == nil {
+            let request = Commit.createFetchRequest()
+//            let sort = NSSortDescriptor(key: "date", ascending: false)
+            let sort = NSSortDescriptor(key: "author.name", ascending: true)
+            request.sortDescriptors = [sort]
+            request.fetchBatchSize = 20
+
+//            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: container.viewContext, sectionNameKeyPath: nil, cacheName: nil)
+            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: container.viewContext, sectionNameKeyPath: "author.name", cacheName: nil)
+            fetchedResultsController.delegate = self
+        }
+
+        fetchedResultsController.fetchRequest.predicate = commitPredicate
+
+        do {
+            try fetchedResultsController.performFetch()
+            tableView.reloadData()
+        } catch {
+            print("Fetch failed")
+        }
+    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .delete:
+            tableView.deleteRows(at: [indexPath!], with: .automatic)
+
+        default:
+            break
+        }
+    }
+}
+
+
+// MARK: - TableView
+extension ViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return fetchedResultsController.sections?.count ?? 0
     }
@@ -155,67 +231,5 @@ class ViewController: UITableViewController, NSFetchedResultsControllerDelegate 
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return fetchedResultsController.sections![section].name
-    }
-    
-    func loadSavedData() {
-        if fetchedResultsController == nil {
-            let request = Commit.createFetchRequest()
-//            let sort = NSSortDescriptor(key: "date", ascending: false)
-            let sort = NSSortDescriptor(key: "author.name", ascending: true)
-            request.sortDescriptors = [sort]
-            request.fetchBatchSize = 20
-
-//            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: container.viewContext, sectionNameKeyPath: nil, cacheName: nil)
-            fetchedResultsController = NSFetchedResultsController(fetchRequest: request, managedObjectContext: container.viewContext, sectionNameKeyPath: "author.name", cacheName: nil)
-            fetchedResultsController.delegate = self
-        }
-
-        fetchedResultsController.fetchRequest.predicate = commitPredicate
-
-        do {
-            try fetchedResultsController.performFetch()
-            tableView.reloadData()
-        } catch {
-            print("Fetch failed")
-        }
-    }
-
-    @objc func changeFilter() {
-        let ac = UIAlertController(title: "Filter commits…", message: nil, preferredStyle: .actionSheet)
-
-        ac.addAction(UIAlertAction(title: "Show only fixes", style: .default) { [unowned self] _ in
-            self.commitPredicate = NSPredicate(format: "message CONTAINS[c] 'fix'")
-            self.loadSavedData()
-        })
-        ac.addAction(UIAlertAction(title: "Ignore Pull Requests", style: .default) { [unowned self] _ in
-            self.commitPredicate = NSPredicate(format: "NOT message BEGINSWITH 'Merge pull request'")
-            self.loadSavedData()
-        })
-        ac.addAction(UIAlertAction(title: "Show only recent", style: .default) { [unowned self] _ in
-            let twelveHoursAgo = Date().addingTimeInterval(-43200)
-            self.commitPredicate = NSPredicate(format: "date > %@", twelveHoursAgo as NSDate)
-            self.loadSavedData()
-        })
-        ac.addAction(UIAlertAction(title: "Show all commits", style: .default) { [unowned self] _ in
-            self.commitPredicate = nil
-            self.loadSavedData()
-        })
-        ac.addAction(UIAlertAction(title: "Show only Durian commits", style: .default) { [unowned self] _ in
-            self.commitPredicate = NSPredicate(format: "author.name == 'Joe Groff'")
-            self.loadSavedData()
-        })
-
-        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        present(ac, animated: true)
-    }
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-        case .delete:
-            tableView.deleteRows(at: [indexPath!], with: .automatic)
-
-        default:
-            break
-        }
     }
 }

@@ -70,10 +70,8 @@
 		392FBBC72508D8A9004F252D /* GithubCommits */ = {
 			isa = PBXGroup;
 			children = (
-				3956F0CE2509A8F500EF1C89 /* Author+CoreDataClass.swift */,
-				3956F0CF2509A8F500EF1C89 /* Author+CoreDataProperties.swift */,
-				392FBBEA2508F379004F252D /* Commit+CoreDataClass.swift */,
-				392FBBEB2508F379004F252D /* Commit+CoreDataProperties.swift */,
+				3956F0D3250A27C500EF1C89 /* Library */,
+				3956F0D2250A276700EF1C89 /* ManagedObject */,
 				392FBBC82508D8A9004F252D /* AppDelegate.swift */,
 				392FBBCA2508D8A9004F252D /* SceneDelegate.swift */,
 				392FBBCC2508D8A9004F252D /* ViewController.swift */,
@@ -81,11 +79,29 @@
 				392FBBD12508D8AD004F252D /* Assets.xcassets */,
 				392FBBD32508D8AD004F252D /* LaunchScreen.storyboard */,
 				392FBBD62508D8AD004F252D /* Info.plist */,
-				392FBBDC2508D927004F252D /* SwiftyJSON.swift */,
 				392FBBDE2508DADB004F252D /* DetailViewController.swift */,
 				392FBBE32508DD08004F252D /* GC.xcdatamodeld */,
 			);
 			path = GithubCommits;
+			sourceTree = "<group>";
+		};
+		3956F0D2250A276700EF1C89 /* ManagedObject */ = {
+			isa = PBXGroup;
+			children = (
+				3956F0CE2509A8F500EF1C89 /* Author+CoreDataClass.swift */,
+				3956F0CF2509A8F500EF1C89 /* Author+CoreDataProperties.swift */,
+				392FBBEA2508F379004F252D /* Commit+CoreDataClass.swift */,
+				392FBBEB2508F379004F252D /* Commit+CoreDataProperties.swift */,
+			);
+			path = ManagedObject;
+			sourceTree = "<group>";
+		};
+		3956F0D3250A27C500EF1C89 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				392FBBDC2508D927004F252D /* SwiftyJSON.swift */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
