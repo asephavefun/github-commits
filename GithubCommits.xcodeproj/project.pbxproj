@@ -18,6 +18,8 @@
 		392FBBE52508DD08004F252D /* GC.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 392FBBE32508DD08004F252D /* GC.xcdatamodeld */; };
 		392FBBEC2508F379004F252D /* Commit+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392FBBEA2508F379004F252D /* Commit+CoreDataClass.swift */; };
 		392FBBED2508F379004F252D /* Commit+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 392FBBEB2508F379004F252D /* Commit+CoreDataProperties.swift */; };
+		3956F0D02509A8F500EF1C89 /* Author+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3956F0CE2509A8F500EF1C89 /* Author+CoreDataClass.swift */; };
+		3956F0D12509A8F500EF1C89 /* Author+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3956F0CF2509A8F500EF1C89 /* Author+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +36,8 @@
 		392FBBE42508DD08004F252D /* GC.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = GC.xcdatamodel; sourceTree = "<group>"; };
 		392FBBEA2508F379004F252D /* Commit+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commit+CoreDataClass.swift"; sourceTree = "<group>"; };
 		392FBBEB2508F379004F252D /* Commit+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Commit+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		3956F0CE2509A8F500EF1C89 /* Author+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Author+CoreDataClass.swift"; sourceTree = "<group>"; };
+		3956F0CF2509A8F500EF1C89 /* Author+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Author+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +70,8 @@
 		392FBBC72508D8A9004F252D /* GithubCommits */ = {
 			isa = PBXGroup;
 			children = (
+				3956F0CE2509A8F500EF1C89 /* Author+CoreDataClass.swift */,
+				3956F0CF2509A8F500EF1C89 /* Author+CoreDataProperties.swift */,
 				392FBBEA2508F379004F252D /* Commit+CoreDataClass.swift */,
 				392FBBEB2508F379004F252D /* Commit+CoreDataProperties.swift */,
 				392FBBC82508D8A9004F252D /* AppDelegate.swift */,
@@ -159,7 +165,9 @@
 				392FBBDF2508DADB004F252D /* DetailViewController.swift in Sources */,
 				392FBBE52508DD08004F252D /* GC.xcdatamodeld in Sources */,
 				392FBBCB2508D8A9004F252D /* SceneDelegate.swift in Sources */,
+				3956F0D02509A8F500EF1C89 /* Author+CoreDataClass.swift in Sources */,
 				392FBBED2508F379004F252D /* Commit+CoreDataProperties.swift in Sources */,
+				3956F0D12509A8F500EF1C89 /* Author+CoreDataProperties.swift in Sources */,
 				392FBBDD2508D927004F252D /* SwiftyJSON.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

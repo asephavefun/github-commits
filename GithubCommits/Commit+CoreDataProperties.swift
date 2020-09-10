@@ -2,7 +2,7 @@
 //  Commit+CoreDataProperties.swift
 //  GithubCommits
 //
-//  Created by Fatah on 09/09/20.
+//  Created by Fatah on 10/09/20.
 //  Copyright © 2020 AHF. All rights reserved.
 //
 //
@@ -21,5 +21,6 @@ extension Commit {
     @NSManaged public var message: String
     @NSManaged public var sha: String
     @NSManaged public var url: String
+    @NSManaged public var author: Author
 
 }
